@@ -5,6 +5,8 @@ const loading = document.querySelector(".loading");
 const movies = document.querySelector(".movies");
 const randomMovies = [];
 let searchedStatus = false;
+let userEndsWriting = null;
+
 searchContainer.addEventListener("click",(e)=>{
   if(!e.currentTarget.classList.contains("active"))
           e.currentTarget.classList.add("active");
@@ -14,8 +16,9 @@ clear.addEventListener("click",()=>{
   searchInput.value = "";
   while (movies.firstChild)
         movies.removeChild(movies.firstChild);
-        searchedStatus = false;
-  showRandomMovies();
+  searchedStatus = false;
+  clearTimeout(userEndsWriting);
+  userEndsWriting = setTimeout(showRandomMovies,550);
 });
 const showImages = ()=>{
   const movieImages = movies.querySelectorAll("img");
@@ -26,22 +29,23 @@ const showImages = ()=>{
     }
   },100);
 }
-let userEndsWriting = null;
+
 searchInput.addEventListener("keyup", (e)=>{
   e.preventDefault();
-  if (!String.fromCharCode(e.keyCode).match(/(\w|\s)/g) &&
-        e.keyCode != 8 && e.keyCode != 46
+  if (String.fromCharCode(e.keyCode).match(/[^a-zA-Z0-9]/) &&
+        e.keyCode != 8 && e.keyCode != 46 && e.keyCode != 13
       ) return;
   const keyword = e.currentTarget.value;
   if(keyword.length == 0){
-    if(searchedStatus)
-        clearInterval(userEndsWriting);
-        showRandomMovies();
+    if(searchedStatus){
+        clearTimeout(userEndsWriting);
+        userEndsWriting = setTimeout(showRandomMovies,550);
         searchedStatus = false;
+    }
     return;
   }
   searchedStatus = true;
-  clearInterval(userEndsWriting);
+  clearTimeout(userEndsWriting);
   userEndsWriting = setTimeout(async ()=>{
       if(!loading.classList.contains("active"))
               loading.classList.add("active");
